@@ -55,7 +55,7 @@ jobs:
           echo "SSH is up on $IP"
 
       - name: Deploy with pyinfra
-        run: cd config && uv sync && uv run pyinfra inventory.py deploy.py --key ~/.ssh/id_rsa --user root
+        run: cd config && uv sync && uv run pyinfra -y inventory.py deploy.py --key ~/.ssh/id_rsa --user root
 
       - name: Validate DuckDB connection
         run: |
