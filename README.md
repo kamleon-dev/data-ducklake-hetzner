@@ -97,7 +97,15 @@ Run all checks locally:
 make test
 ```
 
-This runs `tofu fmt -check`, `tofu validate`, and a pyinfra `--dry` run.
+This runs `make lint` (tofu fmt, ruff check, ruff format) and `make validate` (tofu validate).
+
+## Contributing
+
+Set up git hooks to run linting before each commit:
+
+```bash
+git config core.hooksPath .githooks
+```
 
 ### E2E test
 
