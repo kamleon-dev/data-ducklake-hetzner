@@ -7,7 +7,7 @@
 [![Python >= 3.12](https://img.shields.io/badge/python-%3E%3D3.12-blue)](https://www.python.org/)
 [![OpenTofu](https://img.shields.io/badge/OpenTofu-1.9-blue)](https://opentofu.org/)
 [![DuckDB](https://img.shields.io/badge/DuckDB-1.3-blue)](https://duckdb.org/)
-[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for under €10/month.
 
