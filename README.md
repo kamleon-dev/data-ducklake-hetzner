@@ -1,5 +1,14 @@
 # DuckLake on Hetzner
 
+[![Lint & Validate](https://img.shields.io/github/actions/workflow/status/berndsen-io/ducklake-hetzner/test.yml?label=lint%20%26%20validate)](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/test.yml)
+[![E2E · Hetzner](https://img.shields.io/github/actions/workflow/status/berndsen-io/ducklake-hetzner/e2e.yml?label=e2e%20%C2%B7%20hetzner)](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/e2e.yml)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://docs.astral.sh/ruff/)
+
+[![Python >= 3.12](https://img.shields.io/badge/python-%3E%3D3.12-blue)](https://www.python.org/)
+[![OpenTofu](https://img.shields.io/badge/OpenTofu-1.9-blue)](https://opentofu.org/)
+[![DuckDB](https://img.shields.io/badge/DuckDB-1.3-blue)](https://duckdb.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for under €10/month.
 
 **What you get:** PostgreSQL for metadata, Hetzner Object Storage (S3) for data, DuckDB as the query engine. All managed with OpenTofu and PyInfra.
@@ -101,17 +110,22 @@ This runs `make lint` (tofu fmt, ruff check, ruff format) and `make validate` (t
 
 ## Contributing
 
+### Local setup
+
 Set up git hooks to run linting before each commit:
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-### E2E test
+### CI
 
-The **E2E** workflow (`.github/workflows/e2e.yml`) is triggered manually via `workflow_dispatch`. It provisions a real Hetzner CX23 server + S3 bucket, deploys with pyinfra, validates DuckDB connectivity, and tears everything down.
+Every pull request triggers two workflows:
 
-A CX23 costs **€ 0.0056/h** — a typical run (provision + deploy + validate + destroy) takes a few minutes.
+- **Test** — ruff lint/format checks and OpenTofu format/validate. Runs automatically.
+- **E2E** — full stack validation (Hetzner server + S3 + PyInfra deploy + DuckDB connectivity). Requires a maintainer to [approve the deployment](https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-deployments/managing-environments-for-deployment) before it runs, to prevent unnecessary Hetzner costs.
+
+The E2E workflow can also be triggered manually via `workflow_dispatch` from the Actions tab.
 
 ## Resources
 
