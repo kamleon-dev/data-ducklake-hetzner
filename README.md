@@ -89,6 +89,30 @@ Under €10/month for 1TB of data.
 
 > **Note:** The cheapest option is cx23 (~€3.49/month, 2 vCPU, 4GB RAM), but Hetzner frequently lacks capacity for this tier. The default cx33 is used for reliable provisioning. To try cx23, change `server_type` in `terraform/hetzner.tf`.
 
+## Testing
+
+Run all checks locally:
+
+```bash
+make test
+```
+
+This runs `make lint` (tofu fmt, ruff check, ruff format) and `make validate` (tofu validate).
+
+## Contributing
+
+Set up git hooks to run linting before each commit:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+### E2E test
+
+The **E2E** workflow (`.github/workflows/e2e.yml`) is triggered manually via `workflow_dispatch`. It provisions a real Hetzner CX23 server + S3 bucket, deploys with pyinfra, validates DuckDB connectivity, and tears everything down.
+
+A CX23 costs **€ 0.0056/h** — a typical run (provision + deploy + validate + destroy) takes a few minutes.
+
 ## Resources
 
 - [DuckLake documentation](https://ducklake.select/)

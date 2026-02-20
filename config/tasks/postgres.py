@@ -1,4 +1,5 @@
-from pyinfra.operations import server, apt, postgres, files
+from pyinfra.operations import server, apt, postgres, files, systemd
+
 
 def setup_postgres(db_password: str = "changeme"):
     apt.update(name="Update packages", cache_time=3600)
@@ -12,7 +13,9 @@ def setup_postgres(db_password: str = "changeme"):
         locale="en_US.UTF-8",
     )
 
-    postgres.role(name="Create a role", role="ducklake", password=db_password, _su_user="postgres")
+    postgres.role(
+        name="Create a role", role="ducklake", password=db_password, _su_user="postgres"
+    )
 
     postgres.database(
         database="ducklake_catalog",
@@ -27,9 +30,9 @@ def setup_postgres(db_password: str = "changeme"):
     files.line(
         name="Allow all addresses (postgresql.conf) (insecure, see README)",
         path="/etc/postgresql/16/main/postgresql.conf",
-        line="listen_addresses = '*'",
+        line=".*listen_addresses.*",
+        replace="listen_addresses = '*'",
         backup=True,
-        ensure_newline=True
     )
 
     files.line(
@@ -37,5 +40,11 @@ def setup_postgres(db_password: str = "changeme"):
         path="/etc/postgresql/16/main/pg_hba.conf",
         line="host    ducklake_catalog           ducklake         0.0.0.0/0          md5",
         ensure_newline=True,
-        backup=True
+        backup=True,
+    )
+
+    systemd.service(
+        name="Restart PostgreSQL to apply config changes",
+        service="postgresql",
+        restarted=True,
     )

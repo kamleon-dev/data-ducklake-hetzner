@@ -1,4 +1,5 @@
-.PHONY: all apply terraform-apply deploy init check-env duckdb wait-for-ssh destroy
+.PHONY: all apply terraform-apply deploy init check-env duckdb wait-for-ssh destroy \
+       validate lint test
 
 all: check-env terraform-apply deploy
 
@@ -34,3 +35,13 @@ destroy:
 
 duckdb:
 	duckdb -init init.sql
+
+lint:
+	tofu fmt -check -recursive terraform/
+	cd config && uv run --group dev ruff check .
+	cd config && uv run --group dev ruff format --check .
+
+validate:
+	cd terraform && tofu init -backend=false && tofu validate
+
+test: lint validate

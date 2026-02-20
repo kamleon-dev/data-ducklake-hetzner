@@ -6,3 +6,8 @@ requires-python = ">=3.12"
 dependencies = [
     "pyinfra>=3.5.1",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9",
+]

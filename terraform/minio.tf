@@ -1,19 +1,19 @@
 variable "hetzner_storage_access_key" {
   description = "Hetzner Cloud Storage Access Key"
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 variable "hetzner_storage_secret_key" {
-   description = "Hetzner Cloud Storage Secret Key"
-   type = string
-   sensitive = true
+  description = "Hetzner Cloud Storage Secret Key"
+  type        = string
+  sensitive   = true
 }
 
 provider "minio" {
   # nbg1: Nuremberg (DE)
   minio_server   = "nbg1.your-objectstorage.com"
-  minio_user     = "${var.hetzner_storage_access_key}"
-  minio_password = "${var.hetzner_storage_secret_key}"
+  minio_user     = var.hetzner_storage_access_key
+  minio_password = var.hetzner_storage_secret_key
   minio_region   = "nbg1"
   minio_ssl      = true
 }

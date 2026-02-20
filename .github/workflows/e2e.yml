@@ -1,0 +1,84 @@
+name: E2E
+
+on:
+  workflow_dispatch:
+
+env:
+  TF_VAR_hcloud_token: ${{ secrets.TF_VAR_HCLOUD_TOKEN }}
+  S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+  S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+  POSTGRES_DB_PASSWORD: tester
+
+jobs:
+  e2e:
+    name: Full stack validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Generate SSH key
+        run: |
+          ssh-keygen -t ed25519 -f ~/.ssh/id_rsa -N ""
+
+      - name: Set bucket name
+        run: echo "S3_BUCKET_NAME=ducklake-hetzner-ci-${GITHUB_RUN_ID}" >> "$GITHUB_ENV"
+
+      - name: Tofu init
+        run: cd terraform && tofu init
+
+      - name: Tofu apply
+        run: |
+          cd terraform && tofu apply -auto-approve \
+            -var="hetzner_storage_access_key=$S3_ACCESS_KEY" \
+            -var="hetzner_storage_secret_key=$S3_SECRET_KEY" \
+            -var="s3_bucket_name=$S3_BUCKET_NAME"
+          mkdir -p ../data
+          tofu output -json ducklake_postgres_ip > ../data/ducklake_postgres_ip.json
+
+      - name: Wait for SSH
+        run: |
+          IP=$(cat data/ducklake_postgres_ip.json | tr -d '"')
+          retries=0
+          until ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new \
+            -i ~/.ssh/id_rsa root@"$IP" true 2>/dev/null; do
+            retries=$((retries + 1))
+            if [ "$retries" -ge 60 ]; then
+              echo "SSH failed after 60 retries"
+              exit 1
+            fi
+            echo "  not ready, retrying ($retries/60)..."
+            sleep 5
+          done
+          echo "SSH is up on $IP"
+
+      - name: Deploy with pyinfra
+        run: cd config && uv sync && uv run pyinfra inventory.py deploy.py --key ~/.ssh/id_rsa --user root
+
+      - name: Validate DuckDB connection
+        run: |
+          IP=$(cat data/ducklake_postgres_ip.json | tr -d '"')
+          export POSTGRES_HOST="$IP"
+          export S3_ENDPOINT="nbg1.your-objectstorage.com"
+          export S3_REGION="nbg1"
+          export S3_USE_SSL=true
+          export S3_DATA_PATH="s3://$S3_BUCKET_NAME/"
+
+          sudo apt-get install -y unzip
+          curl -fsSL https://github.com/duckdb/duckdb/releases/latest/download/duckdb_cli-linux-amd64.zip -o duckdb.zip
+          unzip duckdb.zip
+          chmod +x duckdb
+
+          OUTPUT=$(./duckdb -csv -init init.sql < /dev/null 2>&1)
+          echo "$OUTPUT"
+          echo "$OUTPUT" | grep -q "DuckLake is ready"
+
+      - name: Tofu destroy
+        if: always()
+        run: |
+          cd terraform && tofu destroy -auto-approve \
+            -var="hetzner_storage_access_key=$S3_ACCESS_KEY" \
+            -var="hetzner_storage_secret_key=$S3_SECRET_KEY" \
+            -var="s3_bucket_name=$S3_BUCKET_NAME"

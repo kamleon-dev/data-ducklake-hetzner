@@ -1,4 +1,9 @@
 # Don't commit credentials
 terraform.tfvars
+terraform.tfstate*
 /data
 .env
+
+# Claude
+CLAUDE.md
+.claude
