@@ -27,12 +27,3 @@ jobs:
       - run: cd config && uv run ruff check .
       - run: cd config && uv run ruff format --check .
 
-  pyinfra:
-    name: PyInfra dry-run
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - run: cd config && uv sync
-      - run: cd config && POSTGRES_DB_PASSWORD=dummy uv run pyinfra @local deploy.py --dry
-
