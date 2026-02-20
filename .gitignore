@@ -1,4 +1,5 @@
 # Don't commit credentials
 terraform.tfvars
+terraform.tfstate*
 /data
 .env
