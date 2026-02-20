@@ -1,7 +1,7 @@
 # DuckLake on Hetzner
 
-[![Test](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/test.yml/badge.svg)](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/test.yml)
-[![E2E](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/e2e.yml/badge.svg)](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/e2e.yml)
+[![Lint & Validate](https://img.shields.io/github/actions/workflow/status/berndsen-io/ducklake-hetzner/test.yml?label=lint%20%26%20validate)](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/test.yml)
+[![E2E · Hetzner](https://img.shields.io/github/actions/workflow/status/berndsen-io/ducklake-hetzner/e2e.yml?label=e2e%20%C2%B7%20hetzner)](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/e2e.yml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://docs.astral.sh/ruff/)
 
 [![Python >= 3.12](https://img.shields.io/badge/python-%3E%3D3.12-blue)](https://www.python.org/)
