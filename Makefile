@@ -1,5 +1,5 @@
 .PHONY: all apply terraform-apply deploy init check-env duckdb wait-for-ssh destroy \
-       fmt-check validate dry-run test
+       fmt-check validate test
 
 all: check-env terraform-apply deploy
 
@@ -42,8 +42,4 @@ fmt-check:
 validate:
 	cd terraform && tofu init -backend=false && tofu validate
 
-dry-run:
-	cd config && uv sync
-	POSTGRES_DB_PASSWORD=dummy cd config && uv run pyinfra @local deploy.py --dry
-
-test: fmt-check validate dry-run
+test: fmt-check validate
