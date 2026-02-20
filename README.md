@@ -2,6 +2,12 @@
 
 [![Test](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/test.yml/badge.svg)](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/test.yml)
 [![E2E](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/e2e.yml/badge.svg)](https://github.com/berndsen-io/ducklake-hetzner/actions/workflows/e2e.yml)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://docs.astral.sh/ruff/)
+
+[![Python >= 3.12](https://img.shields.io/badge/python-%3E%3D3.12-blue)](https://www.python.org/)
+[![OpenTofu](https://img.shields.io/badge/OpenTofu-1.9-blue)](https://opentofu.org/)
+[![DuckDB](https://img.shields.io/badge/DuckDB-1.3-blue)](https://duckdb.org/)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
 
 Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for under €10/month.
 
