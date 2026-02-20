@@ -1,6 +1,8 @@
 name: E2E
 
 on:
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -14,6 +16,7 @@ jobs:
     name: Full stack validation
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment: e2e
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
