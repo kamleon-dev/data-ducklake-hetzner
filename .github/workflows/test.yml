@@ -23,7 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: cd config && uv sync --group dev
-      - run: cd config && uv run ruff check .
-      - run: cd config && uv run ruff format --check .
+      - run: cd config && uvx ruff check .
+      - run: cd config && uvx ruff format --check .
 
