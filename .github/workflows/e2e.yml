@@ -23,7 +23,7 @@ jobs:
           ssh-keygen -t ed25519 -f ~/.ssh/id_rsa -N ""
 
       - name: Set bucket name
-        run: echo "S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}-${GITHUB_RUN_ID}" >> "$GITHUB_ENV"
+        run: echo "S3_BUCKET_NAME=ducklake-hetzner-ci-${GITHUB_RUN_ID}" >> "$GITHUB_ENV"
 
       - name: Tofu init
         run: cd terraform && tofu init
