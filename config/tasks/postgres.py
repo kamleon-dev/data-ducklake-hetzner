@@ -1,5 +1,6 @@
 from pyinfra.operations import server, apt, postgres, files, systemd
 
+
 def setup_postgres(db_password: str = "changeme"):
     apt.update(name="Update packages", cache_time=3600)
     apt.upgrade(name="Upgrade packages")
@@ -12,7 +13,9 @@ def setup_postgres(db_password: str = "changeme"):
         locale="en_US.UTF-8",
     )
 
-    postgres.role(name="Create a role", role="ducklake", password=db_password, _su_user="postgres")
+    postgres.role(
+        name="Create a role", role="ducklake", password=db_password, _su_user="postgres"
+    )
 
     postgres.database(
         database="ducklake_catalog",
