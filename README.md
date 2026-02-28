@@ -16,6 +16,36 @@ Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for unde
 
 **What you get:** PostgreSQL for metadata, Hetzner Object Storage (S3) for data, DuckDB as the query engine. All managed with OpenTofu and PyInfra.
 
+## Architecture
+
+```mermaid
+graph TB
+    subgraph local["Local"]
+        DuckDB["DuckDB 1.3<br/>(query engine)"]
+        OT["OpenTofu + PyInfra<br/>(provisioning)"]
+    end
+
+    subgraph hetzner["Hetzner Cloud"]
+        subgraph vps["VPS · Ubuntu 24.04"]
+            PG["PostgreSQL 16<br/>(metadata catalog)"]
+        end
+        S3["Object Storage / S3<br/>(data files)"]
+    end
+
+    OT -- "provisions" --> vps
+    OT -- "creates" --> S3
+    DuckDB -- "reads/writes metadata" --> PG
+    DuckDB -- "reads/writes data" --> S3
+
+    style local fill:#f0f4ff,stroke:#4a90d9,color:#1a1a1a
+    style hetzner fill:#fff5f0,stroke:#d94a4a,color:#1a1a1a
+    style vps fill:#ffe8d6,stroke:#d97a4a,color:#1a1a1a
+    style DuckDB fill:#fff200,stroke:#333,color:#1a1a1a
+    style PG fill:#336791,stroke:#333,color:#fff
+    style S3 fill:#e67e22,stroke:#333,color:#fff
+    style OT fill:#7b42bc,stroke:#333,color:#fff
+```
+
 ## Prerequisites
 
 - [OpenTofu](https://opentofu.org/) (Terraform fork)
