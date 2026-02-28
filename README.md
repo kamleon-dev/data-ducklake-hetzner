@@ -152,6 +152,10 @@ make test
 
 This runs `make lint` (tofu fmt, ruff check, ruff format) and `make validate` (tofu validate).
 
+## Blog Posts
+
+- [DuckLake on Hetzner: your own data lakehouse for under €15 a month](https://berndsen.io/blog/0402-ducklake-hetzner/)
+
 ## Contributing
 
 ### Local setup
