@@ -6,18 +6,44 @@
 
 [![Python >= 3.12](https://img.shields.io/badge/python-%3E%3D3.12-blue)](https://www.python.org/)
 [![OpenTofu](https://img.shields.io/badge/OpenTofu-1.9-blue)](https://opentofu.org/)
-[![DuckDB](https://img.shields.io/badge/DuckDB-1.3-blue)](https://duckdb.org/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![DuckDB](https://img.shields.io/badge/DuckDB-1.4-blue)](https://duckdb.org/)
+[![DuckLake](https://img.shields.io/badge/DuckLake-0.3-blue)](https://ducklake.select/)
+[![License: MIT](https://img.shields.io/github/license/berndsen-io/ducklake-hetzner)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/commits/main)
 
-Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for under €10/month.
+Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for under €15/month.
 
-**What you get:** PostgreSQL for metadata, Hetzner Object Storage (S3) for data, DuckDB as the query engine. All managed with OpenTofu and PyInfra.
+**What you get:** PostgreSQL for metadata, Hetzner Object Storage (S3) for data, DuckDB as the query engine. All managed with OpenTofu and PyInfra. Read the [full write-up](https://berndsen.io/blog/0402-ducklake-hetzner/) for background and design decisions.
+
+## Architecture
+
+```mermaid
+graph TB
+    DuckDB["DuckDB 1.4<br/>(query engine)"]
+
+    subgraph hetzner["Hetzner Cloud"]
+        subgraph vps["VPS · Ubuntu 24.04"]
+            PG["PostgreSQL 16<br/>(metadata catalog)"]
+        end
+        S3["Object Storage / S3<br/>(data files)"]
+    end
+
+    DuckDB -- "reads/writes metadata" --> PG
+    DuckDB -- "reads/writes data" --> S3
+
+    style hetzner fill:#fff5f0,stroke:#d94a4a,color:#1a1a1a
+    style vps fill:#ffe8d6,stroke:#d97a4a,color:#1a1a1a
+    style DuckDB fill:#fff200,stroke:#333,color:#1a1a1a
+    style PG fill:#336791,stroke:#333,color:#fff
+    style S3 fill:#e67e22,stroke:#333,color:#fff
+```
 
 ## Prerequisites
 
 - [OpenTofu](https://opentofu.org/) (Terraform fork)
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
-- [DuckDB](https://duckdb.org/) v1.3.0+
+- [DuckDB](https://duckdb.org/) v1.4.0+
 - A [Hetzner Cloud](https://www.hetzner.com/cloud/) account with:
   - An API token (Cloud Console → Security → API Tokens)
   - Object Storage access keys (Cloud Console → Object Storage → Manage keys)
@@ -90,13 +116,24 @@ The server firewall (iptables) only allows SSH (port 22) and PostgreSQL (port 54
 
 ## Cost
 
-- **VPS (cx33):** ~€5.49/month — 4 vCPU, 8GB RAM, 80GB NVMe SSD
-- **Object Storage:** ~€3.50/TB/month
+- **VPS (cx33):** ~€6.49/month — 4 vCPU, 8GB RAM, 80GB NVMe SSD
+- **Object Storage:** ~€6.49/month base
 - **Static IPv4:** included with VPS
 
-Under €10/month for 1TB of data.
+Under €15/month for a complete DuckLake setup.
 
-> **Note:** The cheapest option is cx23 (~€3.49/month, 2 vCPU, 4GB RAM), but Hetzner frequently lacks capacity for this tier. The default cx33 is used for reliable provisioning. To try cx23, change `server_type` in `terraform/hetzner.tf`.
+> **Note:** The cheapest option is cx23 (~€3.99/month, 2 vCPU, 4GB RAM), but Hetzner frequently lacks capacity for this tier. The default cx33 is used for reliable provisioning. To try cx23, change `server_type` in `terraform/hetzner.tf`.
+
+### Comparison
+
+| Provider | Instance | Specs | Monthly cost |
+|---|---|---|---|
+| **Hetzner** | CX33 | 4 vCPU, 8 GB RAM | ~€13/mo (VPS + S3) |
+| DigitalOcean | Droplet | 4 vCPU, 8 GB RAM | ~$48/mo |
+| Scaleway | DEV1-L | 4 vCPU, 8 GB RAM | ~€31/mo |
+| AWS | t3.large | 2 vCPU, 8 GB RAM | ~$60/mo (before RDS + S3) |
+
+See the [blog post](https://berndsen.io/blog/0402-ducklake-hetzner/) for a full breakdown.
 
 ## Testing
 
@@ -133,3 +170,10 @@ The E2E workflow can also be triggered manually via `workflow_dispatch` from the
 - [DuckDB PostgreSQL Catalog](https://duckdb.org/docs/extensions/postgres.html)
 - [DuckDB S3 Configuration](https://duckdb.org/docs/extensions/httpfs/s3api.html)
 - [Hetzner Terraform Provider](https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs)
+- [ducklake-guard](https://github.com/berndsen-io/ducklake-guard) — access control for DuckLake lakehouses
+
+---
+
+## Need help deploying DuckLake for your team?
+
+We help teams set up and optimize DuckLake deployments. Visit [berndsen.io](https://berndsen.io) to learn more.
