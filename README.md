@@ -181,3 +181,9 @@ The E2E workflow can also be triggered manually via `workflow_dispatch` from the
 - [DuckDB PostgreSQL Catalog](https://duckdb.org/docs/extensions/postgres.html)
 - [DuckDB S3 Configuration](https://duckdb.org/docs/extensions/httpfs/s3api.html)
 - [Hetzner Terraform Provider](https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs)
+
+---
+
+## Need help deploying DuckLake for your team?
+
+We help teams set up and optimize DuckLake deployments. Visit [berndsen.io](https://berndsen.io) to learn more.
