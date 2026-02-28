@@ -14,7 +14,7 @@
 
 Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for under €15/month.
 
-**What you get:** PostgreSQL for metadata, Hetzner Object Storage (S3) for data, DuckDB as the query engine. All managed with OpenTofu and PyInfra.
+**What you get:** PostgreSQL for metadata, Hetzner Object Storage (S3) for data, DuckDB as the query engine. All managed with OpenTofu and PyInfra. Read the [full write-up](https://berndsen.io/blog/0402-ducklake-hetzner/) for background and design decisions.
 
 ## Architecture
 
@@ -145,10 +145,6 @@ make test
 
 This runs `make lint` (tofu fmt, ruff check, ruff format) and `make validate` (tofu validate).
 
-## Blog Posts
-
-- [DuckLake on Hetzner: your own data lakehouse for under €15 a month](https://berndsen.io/blog/0402-ducklake-hetzner/)
-
 ## Contributing
 
 ### Local setup
@@ -174,6 +170,7 @@ The E2E workflow can also be triggered manually via `workflow_dispatch` from the
 - [DuckDB PostgreSQL Catalog](https://duckdb.org/docs/extensions/postgres.html)
 - [DuckDB S3 Configuration](https://duckdb.org/docs/extensions/httpfs/s3api.html)
 - [Hetzner Terraform Provider](https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs)
+- [ducklake-guard](https://github.com/berndsen-io/ducklake-guard) — access control for DuckLake lakehouses
 
 ---
 
