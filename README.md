@@ -7,7 +7,10 @@
 [![Python >= 3.12](https://img.shields.io/badge/python-%3E%3D3.12-blue)](https://www.python.org/)
 [![OpenTofu](https://img.shields.io/badge/OpenTofu-1.9-blue)](https://opentofu.org/)
 [![DuckDB](https://img.shields.io/badge/DuckDB-1.3-blue)](https://duckdb.org/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![DuckLake](https://img.shields.io/badge/DuckLake-0.1-blue)](https://ducklake.select/)
+[![License: MIT](https://img.shields.io/github/license/berndsen-io/ducklake-hetzner)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/commits/main)
 
 Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for under €10/month.
 
