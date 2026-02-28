@@ -12,7 +12,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/commits/main)
 
-Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for under €10/month.
+Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for under €15/month.
 
 **What you get:** PostgreSQL for metadata, Hetzner Object Storage (S3) for data, DuckDB as the query engine. All managed with OpenTofu and PyInfra.
 
@@ -123,13 +123,24 @@ The server firewall (iptables) only allows SSH (port 22) and PostgreSQL (port 54
 
 ## Cost
 
-- **VPS (cx33):** ~€5.49/month — 4 vCPU, 8GB RAM, 80GB NVMe SSD
-- **Object Storage:** ~€3.50/TB/month
+- **VPS (cx33):** ~€6.49/month — 4 vCPU, 8GB RAM, 80GB NVMe SSD
+- **Object Storage:** ~€6.49/month base
 - **Static IPv4:** included with VPS
 
-Under €10/month for 1TB of data.
+Under €15/month for a complete DuckLake setup.
 
-> **Note:** The cheapest option is cx23 (~€3.49/month, 2 vCPU, 4GB RAM), but Hetzner frequently lacks capacity for this tier. The default cx33 is used for reliable provisioning. To try cx23, change `server_type` in `terraform/hetzner.tf`.
+> **Note:** The cheapest option is cx23 (~€3.99/month, 2 vCPU, 4GB RAM), but Hetzner frequently lacks capacity for this tier. The default cx33 is used for reliable provisioning. To try cx23, change `server_type` in `terraform/hetzner.tf`.
+
+### Comparison
+
+| Provider | Instance | Specs | Monthly cost |
+|---|---|---|---|
+| **Hetzner** | CX33 | 4 vCPU, 8 GB RAM | ~€13/mo (VPS + S3) |
+| DigitalOcean | Droplet | 4 vCPU, 8 GB RAM | ~$48/mo |
+| Scaleway | DEV1-L | 4 vCPU, 8 GB RAM | ~€31/mo |
+| AWS | t3.large | 2 vCPU, 8 GB RAM | ~$60/mo (before RDS + S3) |
+
+See the [blog post](https://berndsen.io/blog/0402-ducklake-hetzner/) for a full breakdown.
 
 ## Testing
 
