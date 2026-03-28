@@ -6,8 +6,8 @@
 
 [![Python >= 3.12](https://img.shields.io/badge/python-%3E%3D3.12-blue)](https://www.python.org/)
 [![OpenTofu](https://img.shields.io/badge/OpenTofu-1.9-blue)](https://opentofu.org/)
-[![DuckDB](https://img.shields.io/badge/DuckDB-1.4-blue)](https://duckdb.org/)
-[![DuckLake](https://img.shields.io/badge/DuckLake-0.3-blue)](https://ducklake.select/)
+[![DuckDB](https://img.shields.io/badge/DuckDB-1.5-blue)](https://duckdb.org/)
+[![DuckLake](https://img.shields.io/badge/DuckLake-0.4-blue)](https://ducklake.select/)
 [![License: MIT](https://img.shields.io/github/license/berndsen-io/ducklake-hetzner)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/commits/main)
@@ -20,7 +20,7 @@ Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for unde
 
 ```mermaid
 graph TB
-    DuckDB["DuckDB 1.4<br/>(query engine)"]
+    DuckDB["DuckDB 1.5<br/>(query engine)"]
 
     subgraph hetzner["Hetzner Cloud"]
         subgraph vps["VPS · Ubuntu 24.04"]
@@ -43,7 +43,7 @@ graph TB
 
 - [OpenTofu](https://opentofu.org/) (Terraform fork)
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
-- [DuckDB](https://duckdb.org/) v1.4.0+
+- [DuckDB](https://duckdb.org/) v1.5.0+
 - A [Hetzner Cloud](https://www.hetzner.com/cloud/) account with:
   - An API token (Cloud Console → Security → API Tokens)
   - Object Storage access keys (Cloud Console → Object Storage → Manage keys)
