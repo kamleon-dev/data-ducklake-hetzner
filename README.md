@@ -6,8 +6,8 @@
 
 [![Python >= 3.12](https://img.shields.io/badge/python-%3E%3D3.12-blue)](https://www.python.org/)
 [![OpenTofu](https://img.shields.io/badge/OpenTofu-1.9-blue)](https://opentofu.org/)
-[![DuckDB](https://img.shields.io/badge/DuckDB-1.5-blue)](https://duckdb.org/)
-[![DuckLake](https://img.shields.io/badge/DuckLake-0.4-blue)](https://ducklake.select/)
+[![DuckDB](https://img.shields.io/badge/DuckDB-1.5.3-blue)](https://duckdb.org/)
+[![DuckLake](https://img.shields.io/badge/DuckLake-1.0-blue)](https://ducklake.select/)
 [![License: MIT](https://img.shields.io/github/license/berndsen-io/ducklake-hetzner)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/berndsen-io/ducklake-hetzner)](https://github.com/berndsen-io/ducklake-hetzner/commits/main)
