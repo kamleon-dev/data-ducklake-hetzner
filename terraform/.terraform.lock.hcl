@@ -5,6 +5,17 @@ provider "registry.opentofu.org/aminueza/minio" {
   version     = "3.8.0"
   constraints = "3.8.0"
   hashes = [
+    "h1:1W+2UUK74n73j6F7+51hPHdefdk9gXsKMxxPz0nXXy4=",
+    "h1:BWUTEYOYTSxc6Ag3GtewUzvR7dT0d1LYkzZwPGMwLWk=",
+    "h1:CeXIQC9+ENkplQkQZvR+Hg+JwOe+846hTSqV2YQlmxc=",
+    "h1:IdwNDxbfZhKk5G3BU2DoWdsFWG9TtANgxcU3XtbObEg=",
+    "h1:cKYmIp4Z5VrZjdSExjQ/ZvwsPzvvE4XxpGsm7TRL7RY=",
+    "h1:gV6ovn+tjuroiB1cU5Z8hNm8j3GG1VbIQD2GGbrZACg=",
+    "h1:iLuBrWXsz9TkdfNq9daagpmwgYP5XuSqUv6W4f9L6Hw=",
+    "h1:ik62r3E9kfKg2tcv8U690UppJJJWeMtiDul9/ApDnlo=",
+    "h1:kDOuyCvMLDG0TTy/LAiYYU19ST8T48GuSyQBZ7KflvA=",
+    "h1:kKyBXADec2u8mPQkgwJmUwnA2B8BTrMw8ty0+c6JUkw=",
+    "h1:tnSEYJjRuAk+UT5+9ejy85lCjcfZPj52/K+jVCNv1rE=",
     "h1:vTKgpflNKJya7SEdykUlxd23L3iBBbfXpWzvwFOubY0=",
     "zh:0ee91b3c5efab361ad3ba65856c1a083efb9f930fc614eaa822844cb22544245",
     "zh:2b514609246d4c442376ae5bc6a6fd6750f6134017eaf0d240712fac45461d1c",
@@ -25,7 +36,19 @@ provider "registry.opentofu.org/hetznercloud/hcloud" {
   version     = "1.60.0"
   constraints = "~> 1.45"
   hashes = [
+    "h1:2yXbfwY30vQUowjI/P4QKgAr5jmR+JlfYWeH0RXHZLM=",
+    "h1:3gkvOG06cbM6vtMnSfvAGStJ0oBKEnsAMH+ytxGMmGo=",
+    "h1:3xZPCLZOOZToUv5/eM4M6qu74n7IcdrBjXNGeFsOWEc=",
+    "h1:L/KCx7p1JVj58nn4DbVQb6IVmyDMrK/smQpy/ZxGKSo=",
+    "h1:M6cPmJmTJOveI/8oo9IgXwY0D3gC6Zl+UL7Tk5BSqTU=",
     "h1:a+0jnJt73mpSsncc36Idxy5ziS7N4Iim4otcW11XkXo=",
+    "h1:aiIeXDAnOfYjlIQRlGmUwdGqUOONMGomg7LVN8CPjVM=",
+    "h1:kDMKG3PvYVDK90zrUQw83B64dcphiGtqR6SfesZjvi0=",
+    "h1:l5ARiaGITy3UtNayopPsqXRKXa6ylZZc9+QZR/WJswc=",
+    "h1:pCdSGapp5cQ+g3RAC+HwBxVbogUICp9VLGhldOUpQZM=",
+    "h1:rdjK1aCyC+n+nbKczAILT9TooezD1y2Y6mCZ+imZBUw=",
+    "h1:sFOoI7cVEUNHOhZ19IJ9kBdU/wPcWxHDiFUvbA/TNg0=",
+    "h1:wo91U/gJqb43O30xYysdPaN8wI1Xgsx9Lip0o0pvwHY=",
     "zh:13d729f4859bdcf9e6c2e706bdb010d1e770d8e06834335a1ef7f982fffd0c99",
     "zh:3b36a77cf1869a9abce3a45e2c796cb4f3e5e819497919a8a837badbb9576a1d",
     "zh:4ec1f0d4e7fe4dffd7a4a2c5846d45243b1ade669c234a772631824c1d4faa10",

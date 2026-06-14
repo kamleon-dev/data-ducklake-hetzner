@@ -28,7 +28,7 @@ wait-for-ssh:
 
 deploy: wait-for-ssh
 	cd config && uv sync
-	cd config && pyinfra inventory.py deploy.py --key "$${SSH_KEY_PATH}" --user root
+	cd config && uv run pyinfra inventory.py deploy.py --key "$${SSH_KEY_PATH}" --user root
 
 destroy:
 	cd terraform && tofu destroy -var="hetzner_storage_access_key=$$S3_ACCESS_KEY" -var="hetzner_storage_secret_key=$$S3_SECRET_KEY" -var="s3_bucket_name=$$S3_BUCKET_NAME"

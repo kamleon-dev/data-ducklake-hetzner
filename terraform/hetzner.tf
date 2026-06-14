@@ -32,8 +32,8 @@ resource "hcloud_primary_ip" "ducklake_postgres" {
 
 resource "hcloud_server" "ducklake-postgres" {
   name        = "ducklake-postgres"
-  image       = "ubuntu-24.04"
-  server_type = "cx23" # Use "cx33" if unavailable
+  image       = "ubuntu-26.04"
+  server_type = "cpx22" # Use "cx33" if unavailable
   location    = "nbg1"
   ssh_keys    = [hcloud_ssh_key.default.id]
   public_net {

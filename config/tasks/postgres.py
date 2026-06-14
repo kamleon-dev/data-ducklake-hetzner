@@ -29,20 +29,36 @@ def setup_postgres(db_password: str = "changeme"):
 
     files.line(
         name="Allow all addresses (postgresql.conf) (insecure, see README)",
-        path="/etc/postgresql/16/main/postgresql.conf",
+        path="/etc/postgresql/18/main/postgresql.conf",
         line=".*listen_addresses.*",
-        replace="listen_addresses = '*'",
+        replace="listen_addresses = 'localhost'",
+        backup=True,
+    )
+
+    #files.line(
+        #name="Allow all addresses (pg_hba.conf) (insecure, see README)",
+        #path="/etc/postgresql/18/main/pg_hba.conf",
+        #line="host    ducklake_catalog           ducklake         0.0.0.0/0          md5",
+        #ensure_newline=True,
+        #backup=True,
+    #)
+
+    files.line(
+        name="Remove public pg_hba.conf rule",
+        path="/etc/postgresql/18/main/pg_hba.conf",
+        line=r"^host\s+ducklake_catalog\s+ducklake\s+0\.0\.0\.0/0\s+md5",
+        present=False,
         backup=True,
     )
 
     files.line(
-        name="Allow all addresses (pg_hba.conf) (insecure, see README)",
-        path="/etc/postgresql/16/main/pg_hba.conf",
-        line="host    ducklake_catalog           ducklake         0.0.0.0/0          md5",
+        name="Allow loopback only (pg_hba.conf)",
+        path="/etc/postgresql/18/main/pg_hba.conf",
+        line=r"^host\s+ducklake_catalog\s+ducklake\s+127\.0\.0\.1/32\s+md5",
+        replace="host    ducklake_catalog    ducklake    127.0.0.1/32    md5",
         ensure_newline=True,
         backup=True,
     )
-
     systemd.service(
         name="Restart PostgreSQL to apply config changes",
         service="postgresql",
