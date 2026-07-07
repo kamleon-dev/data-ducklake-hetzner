@@ -34,7 +34,17 @@ destroy:
 	cd terraform && tofu destroy -var="hetzner_storage_access_key=$$S3_ACCESS_KEY" -var="hetzner_storage_secret_key=$$S3_SECRET_KEY" -var="s3_bucket_name=$$S3_BUCKET_NAME"
 
 duckdb:
-	duckdb -init init.sql
+	@scp -i "$${SSH_KEY_PATH}" init.sql root@$$(cat data/ducklake_postgres_ip.json | tr -d '\"'):/root/init.sql
+	@ssh -t -i "$${SSH_KEY_PATH}" root@$$(cat data/ducklake_postgres_ip.json | tr -d '\"') \
+		"POSTGRES_HOST=localhost \
+		 POSTGRES_DB_PASSWORD='$${POSTGRES_DB_PASSWORD}' \
+		 S3_ACCESS_KEY='$${S3_ACCESS_KEY}' \
+		 S3_SECRET_KEY='$${S3_SECRET_KEY}' \
+		 S3_ENDPOINT='$${S3_ENDPOINT}' \
+		 S3_REGION='$${S3_REGION}' \
+		 S3_DATA_PATH='$${S3_DATA_PATH}' \
+		 S3_USE_SSL='$${S3_USE_SSL}' \
+		 duckdb -init /root/init.sql"
 
 lint:
 	tofu fmt -check -recursive terraform/

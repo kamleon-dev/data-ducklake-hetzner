@@ -20,11 +20,10 @@ Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for unde
 
 ```mermaid
 graph TB
-    DuckDB["DuckDB 1.5<br/>(query engine)"]
-
     subgraph hetzner["Hetzner Cloud"]
-        subgraph vps["VPS · Ubuntu 24.04"]
-            PG["PostgreSQL 16<br/>(metadata catalog)"]
+        subgraph vps["VPS · Ubuntu 26.04"]
+            DuckDB["DuckDB<br/>(query engine, via SSH)"]
+            PG["PostgreSQL 18<br/>(metadata catalog, localhost only)"]
         end
         S3["Object Storage / S3<br/>(data files)"]
     end
@@ -43,7 +42,7 @@ graph TB
 
 - [OpenTofu](https://opentofu.org/) (Terraform fork)
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
-- [DuckDB](https://duckdb.org/) v1.5.0+
+- `ssh` and `scp` (for connecting to the server and running DuckDB there)
 - A [Hetzner Cloud](https://www.hetzner.com/cloud/) account with:
   - An API token (Cloud Console → Security → API Tokens)
   - Object Storage access keys (Cloud Console → Object Storage → Manage keys)
@@ -86,14 +85,19 @@ make init    # initialize OpenTofu
 make all     # provision infrastructure + configure server
 ```
 
-This creates a Hetzner VPS with PostgreSQL and an S3 bucket. After `make all` completes, set `POSTGRES_HOST` in your `.env` to the server IP printed in the Terraform output.
+This creates a Hetzner VPS with PostgreSQL and an S3 bucket. `POSTGRES_HOST` in your `.env` is not used by `make duckdb` (it forces `localhost` since DuckDB runs on the server) — you can leave it blank unless you have other tooling that needs it.
 
 ### 4. Connect with DuckDB
 
 ```bash
 set -a && source .env && set +a
-make duckdb # this runs duckdb -init init.sql, loading all relevant information
+make duckdb # SSHes into the server and runs duckdb -init init.sql there
 ```
+
+DuckDB runs **on the server**, not on your machine — Postgres only accepts
+loopback connections (see Security below), so the query engine has to live
+next to the catalog. `make duckdb` copies `init.sql` over and opens an
+interactive DuckDB session over SSH.
 
 You're now connected to your DuckLake. Try it:
 
@@ -106,13 +110,15 @@ SELECT * FROM flights LIMIT 10;
 
 ## Security
 
-This setup configures PostgreSQL to accept connections from all IP addresses (`0.0.0.0/0`). This is intentionally simple for getting started. For production use, restrict access in `config/tasks/postgres.py` by changing the `pg_hba.conf` line to your specific IP:
+PostgreSQL is locked down to loopback connections only
+(`listen_addresses = 'localhost'`, `pg_hba.conf` restricted to `127.0.0.1/32`).
+It is not reachable from outside the server at all — not by IP allowlist,
+not by any firewall rule. This is why DuckDB runs on the server itself
+(over SSH) rather than connecting in from a client machine.
 
-```python
-line="host    ducklake_catalog           ducklake         YOUR_IP/32          md5",
-```
-
-The server firewall (iptables) only allows SSH (port 22) and PostgreSQL (port 5432). fail2ban is installed for SSH brute-force protection.
+The server firewall (iptables) only allows SSH (port 22); PostgreSQL's port
+is not opened externally, since nothing outside the server is meant to
+reach it. fail2ban is installed for SSH brute-force protection.
 
 ## Cost
 
