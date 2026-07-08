@@ -1,12 +1,11 @@
-from pathlib import Path
-import json
+from os import getenv
 
+ssh_host = getenv("SSH_HOST")
+if not ssh_host:
+    raise ValueError(
+        "SSH_HOST env var must be set to the target server's IP "
+        "(from your .env.deploy-<workspace> file, matching the IP "
+        "printed by 'tofu apply' / stored in data/<workspace>_server_ip.json)."
+    )
 
-def get_ip_from_terraform(tf_output_path: Path) -> str:
-    with open(tf_output_path, "r") as json_file:
-        data = json.load(json_file)
-        return data
-
-
-terraform_output = Path(__file__).parent / ".." / "data" / "ducklake_postgres_ip.json"
-postgres = [get_ip_from_terraform(terraform_output.resolve())]
+postgres = [ssh_host]
