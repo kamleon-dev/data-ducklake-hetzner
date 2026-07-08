@@ -16,8 +16,8 @@ CREATE OR REPLACE SECRET postgres_secret (
     TYPE postgres,
     HOST getenv('POSTGRES_HOST'),
     PORT 5432,
-    DATABASE ducklake_catalog,
-    USER 'ducklake',
+    DATABASE getenv('POSTGRES_DATABASE'),
+    USER getenv('POSTGRES_USER'),
     PASSWORD getenv('POSTGRES_DB_PASSWORD')
 );
 
@@ -30,4 +30,4 @@ CREATE SECRET ducklake_secret (
 
 ATTACH 'ducklake:ducklake_secret' AS ducklake;
 USE ducklake;
-SELECT 'DuckLake is ready' as status;
+SELECT 'DuckLake is ready for environment: ' || getenv('POSTGRES_DATABASE') as status;
