@@ -18,25 +18,44 @@ Deploy a [DuckLake](https://ducklake.select/) data lakehouse on Hetzner for unde
 
 ## Architecture
 
+Three environments run across two servers:
+
 ```mermaid
 graph TB
-    subgraph hetzner["Hetzner Cloud"]
-        subgraph vps["VPS · Ubuntu 26.04"]
-            DuckDB["DuckDB<br/>(query engine, via SSH)"]
-            PG["PostgreSQL 18<br/>(metadata catalog, localhost only)"]
-        end
-        S3["Object Storage / S3<br/>(data files)"]
+    subgraph server_a["Server: ducklake-development-preproduction"]
+        DuckDB_A["DuckDB<br/>(shared install, via SSH)"]
+        PG_A["PostgreSQL 18<br/>2 databases: ducklake_catalog,<br/>ducklake_catalog_preproduction<br/>(localhost only)"]
     end
+    S3_dev["Bucket: data-palantir-development"]
+    S3_pre["Bucket: data-palantir-preproduction"]
 
-    DuckDB -- "reads/writes metadata" --> PG
-    DuckDB -- "reads/writes data" --> S3
+    subgraph server_b["Server: ducklake-production"]
+        DuckDB_B["DuckDB<br/>(via SSH)"]
+        PG_B["PostgreSQL 18<br/>ducklake_catalog_production<br/>(localhost only)"]
+    end
+    S3_prod["Bucket: data-palantir-production"]
 
-    style hetzner fill:#fff5f0,stroke:#d94a4a,color:#1a1a1a
-    style vps fill:#ffe8d6,stroke:#d97a4a,color:#1a1a1a
-    style DuckDB fill:#fff200,stroke:#333,color:#1a1a1a
-    style PG fill:#336791,stroke:#333,color:#fff
-    style S3 fill:#e67e22,stroke:#333,color:#fff
+    DuckDB_A --> PG_A
+    DuckDB_A --> S3_dev
+    DuckDB_A --> S3_pre
+    DuckDB_B --> PG_B
+    DuckDB_B --> S3_prod
+
+    style server_a fill:#ffe8d6,stroke:#d97a4a,color:#1a1a1a
+    style server_b fill:#ffe8d6,stroke:#d97a4a,color:#1a1a1a
+    style DuckDB_A fill:#fff200,stroke:#333,color:#1a1a1a
+    style DuckDB_B fill:#fff200,stroke:#333,color:#1a1a1a
+    style PG_A fill:#336791,stroke:#333,color:#fff
+    style PG_B fill:#336791,stroke:#333,color:#fff
+    style S3_dev fill:#e67e22,stroke:#333,color:#fff
+    style S3_pre fill:#e67e22,stroke:#333,color:#fff
+    style S3_prod fill:#e67e22,stroke:#333,color:#fff
 ```
+
+`development` and `preproduction` share one server but are isolated from
+each other via separate Postgres roles/databases (neither role can
+authenticate into the other's database) and separate S3 buckets.
+`production` runs on its own dedicated server entirely.
 
 ## Prerequisites
 
@@ -46,58 +65,88 @@ graph TB
 - A [Hetzner Cloud](https://www.hetzner.com/cloud/) account with:
   - An API token (Cloud Console → Security → API Tokens)
   - Object Storage access keys (Cloud Console → Object Storage → Manage keys)
+  - Each team member's SSH public key already added under **Security → SSH keys**
+    in the console, under the name their key is registered as (see
+    `team_ssh_key_names` in `terraform/environments/*.tfvars`). Terraform looks
+    these up by name rather than creating new key resources, so a key must
+    already exist in the console before a server can be built with it.
 
 ## Structure
 
 ```
-terraform/   # OpenTofu infrastructure (server + S3 bucket)
-config/      # PyInfra server provisioning (PostgreSQL, firewall)
-init.sql     # DuckDB initialization script
-Makefile     # Deployment automation
+terraform/
+  hetzner.tf, minio.tf, output.tf, providers.tf  # infra definitions (parameterized)
+  environments/
+    development-preproduction.tfvars             # shared dev+preprod server
+    production.tfvars                             # dedicated production server
+config/        # PyInfra server provisioning (PostgreSQL, DuckDB, firewall)
+env-templates/ # .env templates -- see Setup below
+init.sql       # DuckDB initialization script (environment-agnostic; reads
+               # POSTGRES_DATABASE / POSTGRES_USER from env)
+Makefile       # Deployment automation
 ```
 
 ## Setup
 
-### 1. Configure environment
+There are two servers to deploy, and (up to) three environments to connect
+to. Deploying a server and connecting as a client use **different** `.env`
+files — see `env-templates/` for all five templates.
+
+### 1. Deploy a server
+
+Pick the server you're deploying and copy its template:
 
 ```bash
-cp .env.sample .env
+# Shared server (development + preproduction):
+cp env-templates/.env.deploy-development-preproduction.sample .env.deploy-development-preproduction
+# ...fill in TF_VAR_hcloud_token, S3_ACCESS_KEY/SECRET_KEY, and one
+#    POSTGRES_DB_PASSWORD_<ENVIRONMENT> per environment it hosts.
+
+# OR the dedicated production server:
+cp env-templates/.env.deploy-production.sample .env.deploy-production
 ```
 
-Fill in your Hetzner API token, storage keys, and a PostgreSQL password. Then source it:
+Load it and deploy:
 
 ```bash
-set -a && source .env && set +a
+set -a && source .env.deploy-development-preproduction && set +a   # (or .env.deploy-production)
+make init
+make terraform-apply   # provisions the server + its S3 bucket(s)
+make deploy            # installs PostgreSQL + DuckDB, configures the firewall
 ```
 
-### 2. Generate SSH keys (if needed)
+`terraform-apply` prints the new server's IP and writes it to
+`data/<TF_WORKSPACE>_server_ip.json`. Copy that IP into `SSH_HOST` in the
+relevant client-side `.env.<environment>` file(s) from Step 2 — for the
+shared server, that means **both** `.env.development` and
+`.env.preproduction` get the same `SSH_HOST`.
+
+Repeat this step for the other server when you're ready (each has its own
+`.tfvars` file and OpenTofu workspace, so applying one never touches the
+other's state).
+
+### 2. Connect to an environment
+
+Copy the template for whichever environment you want:
 
 ```bash
-ssh-keygen -t ed25519 -f ~/.ssh/id_rsa
+cp env-templates/.env.development.sample .env.development
+# ...fill in SSH_HOST (from Step 1), POSTGRES_DB_PASSWORD (matching what
+#    was set at deploy time), and S3_ACCESS_KEY/SECRET_KEY.
 ```
 
-Update `TF_VAR_ssh_public_key_path` and `SSH_KEY_PATH` in `.env` if using a different path.
-
-### 3. Deploy
+Load it and connect:
 
 ```bash
-make init    # initialize OpenTofu
-make all     # provision infrastructure + configure server
-```
-
-This creates a Hetzner VPS with PostgreSQL and an S3 bucket. `POSTGRES_HOST` in your `.env` is not used by `make duckdb` (it forces `localhost` since DuckDB runs on the server) — you can leave it blank unless you have other tooling that needs it.
-
-### 4. Connect with DuckDB
-
-```bash
-set -a && source .env && set +a
-make duckdb # SSHes into the server and runs duckdb -init init.sql there
+set -a && source .env.development && set +a   # or .env.preproduction / .env.production
+make duckdb
 ```
 
 DuckDB runs **on the server**, not on your machine — Postgres only accepts
 loopback connections (see Security below), so the query engine has to live
 next to the catalog. `make duckdb` copies `init.sql` over and opens an
-interactive DuckDB session over SSH.
+interactive DuckDB session over SSH, connected to that environment's own
+database and bucket.
 
 You're now connected to your DuckLake. Try it:
 
@@ -120,17 +169,38 @@ The server firewall (iptables) only allows SSH (port 22); PostgreSQL's port
 is not opened externally, since nothing outside the server is meant to
 reach it. fail2ban is installed for SSH brute-force protection.
 
+**Environment isolation on the shared server:** `development` and
+`preproduction` share one Postgres instance but use separate roles and
+databases, each restricted (in `pg_hba.conf`) to loopback access on its
+own database only. A valid `development` password cannot authenticate
+into the `preproduction` database, or vice versa. They also write to
+separate S3 buckets.
+
 ## Cost
 
-- **VPS (cx33):** ~€6.49/month — 4 vCPU, 8GB RAM, 80GB NVMe SSD
-- **Object Storage:** ~€6.49/month base
-- **Static IPv4:** included with VPS
+This setup now runs **two servers** (`cpx22`, 2 vCPU / 4 GB RAM / 80 GB NVMe
+each) — one shared by development + preproduction, one dedicated to
+production — plus three S3 buckets.
 
-Under €15/month for a complete DuckLake setup.
+> **Note on pricing accuracy:** Hetzner adjusted Cloud pricing in 2026
+> (including a further change effective 15 June 2026), so published
+> figures from before then are stale. Rather than restate a number here
+> that may already be wrong by the time you read this, check current
+> pricing directly at [hetzner.com/cloud](https://www.hetzner.com/cloud/)
+> and [Object Storage pricing](https://www.hetzner.com/storage/object-storage/)
+> before budgeting. As of mid-2026, `cpx22` runs roughly €7-8/month per
+> server (excl. VAT) — so budget for roughly double a single-server setup,
+> plus Object Storage's base + usage-based cost across three buckets.
 
-> **Note:** The cheapest option is cx23 (~€3.99/month, 2 vCPU, 4GB RAM), but Hetzner frequently lacks capacity for this tier. The default cx33 is used for reliable provisioning. To try cx23, change `server_type` in `terraform/hetzner.tf`.
+To reduce cost, `server_type` in each `terraform/environments/*.tfvars`
+file can be lowered (e.g. to `cx23`), independently per server — for
+instance, running preproduction/development on a smaller type than
+production.
 
 ### Comparison
+
+> Figures below are from the linked blog post and predate Hetzner's 2026
+> price adjustments — treat as directionally useful, not current.
 
 | Provider | Instance | Specs | Monthly cost |
 |---|---|---|---|
@@ -139,7 +209,7 @@ Under €15/month for a complete DuckLake setup.
 | Scaleway | DEV1-L | 4 vCPU, 8 GB RAM | ~€31/mo |
 | AWS | t3.large | 2 vCPU, 8 GB RAM | ~$60/mo (before RDS + S3) |
 
-See the [blog post](https://berndsen.io/blog/0402-ducklake-hetzner/) for a full breakdown.
+See the [blog post](https://berndsen.io/blog/0402-ducklake-hetzner/) for a full breakdown (note: written for the original single-server setup, not the current multi-environment architecture).
 
 ## Testing
 

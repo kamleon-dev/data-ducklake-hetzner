@@ -3,6 +3,11 @@ terraform.tfvars
 terraform.tfstate*
 /data
 .env
+.env.*
+!.env.*.sample
+
+# Editor
+.idea/
 
 # Claude
 CLAUDE.md

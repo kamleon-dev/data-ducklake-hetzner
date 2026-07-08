@@ -1,12 +1,23 @@
 variable "hetzner_storage_access_key" {
-  description = "Hetzner Cloud Storage Access Key"
+  description = "Hetzner Object Storage Access Key"
   type        = string
   sensitive   = true
 }
+
 variable "hetzner_storage_secret_key" {
-  description = "Hetzner Cloud Storage Secret Key"
+  description = "Hetzner Object Storage Secret Key"
   type        = string
   sensitive   = true
+}
+
+variable "bucket_names" {
+  description = <<-EOT
+    S3 bucket names to create (must be globally unique). One bucket per
+    environment hosted by this server, e.g.:
+      ["ducklake-development", "ducklake-preproduction"]  for the shared server
+      ["ducklake-production"]                             for the production server
+  EOT
+  type        = list(string)
 }
 
 provider "minio" {
@@ -18,13 +29,9 @@ provider "minio" {
   minio_ssl      = true
 }
 
-variable "s3_bucket_name" {
-  description = "S3 bucket name (must be globally unique)"
-  type        = string
-}
-
-resource "minio_s3_bucket" "bucket" {
-  bucket         = var.s3_bucket_name
+resource "minio_s3_bucket" "this" {
+  for_each       = toset(var.bucket_names)
+  bucket         = each.value
   acl            = "private"
   object_locking = false
 }
