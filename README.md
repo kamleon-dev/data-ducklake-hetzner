@@ -26,14 +26,14 @@ graph TB
         DuckDB_A["DuckDB<br/>(shared install, via SSH)"]
         PG_A["PostgreSQL 18<br/>2 databases: ducklake_catalog,<br/>ducklake_catalog_preproduction<br/>(localhost only)"]
     end
-    S3_dev["Bucket: data-palantir-development"]
-    S3_pre["Bucket: data-palantir-preproduction"]
+    S3_dev["Bucket: data-palantir-development-measurements"]
+    S3_pre["Bucket: data-palantir-preproduction-measurements"]
 
     subgraph server_b["Server: ducklake-production"]
         DuckDB_B["DuckDB<br/>(via SSH)"]
         PG_B["PostgreSQL 18<br/>ducklake_catalog_production<br/>(localhost only)"]
     end
-    S3_prod["Bucket: data-palantir-production"]
+    S3_prod["Bucket: data-palantir-production-measurements"]
 
     DuckDB_A --> PG_A
     DuckDB_A --> S3_dev

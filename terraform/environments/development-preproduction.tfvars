@@ -4,8 +4,8 @@ server_type     = "cpx22"
 server_location = "nbg1"
 
 bucket_names = [
-  "data-palantir-development",
-  "data-palantir-preproduction",
+  "data-palantir-development-measurements",
+  "data-palantir-preproduction-measurements",
 ]
 
 team_ssh_key_names = [
