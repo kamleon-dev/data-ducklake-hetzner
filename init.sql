@@ -21,6 +21,11 @@ CREATE OR REPLACE SECRET postgres_secret (
     PASSWORD getenv('POSTGRES_DB_PASSWORD')
 );
 
+-- OVERRIDE_DATA_PATH: DuckLake stores DATA_PATH in the catalog metadata at
+-- creation time and errors if it doesn't match the current connection's
+-- path (e.g. after a bucket rename). Since this script runs fresh on every
+-- connection, always overriding is the correct behavior here -- it does
+-- NOT change the value stored in the catalog, only the current session.
 CREATE SECRET ducklake_secret (
     TYPE ducklake,
     METADATA_PATH '',
@@ -28,6 +33,6 @@ CREATE SECRET ducklake_secret (
     METADATA_PARAMETERS MAP {'TYPE': 'postgres', 'SECRET': 'postgres_secret'}
 );
 
-ATTACH 'ducklake:ducklake_secret' AS ducklake;
+ATTACH 'ducklake:ducklake_secret' AS ducklake (OVERRIDE_DATA_PATH true);
 USE ducklake;
 SELECT 'DuckLake is ready for environment: ' || getenv('POSTGRES_DATABASE') as status;
