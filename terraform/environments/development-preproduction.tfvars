@@ -6,6 +6,8 @@ server_location = "nbg1"
 bucket_names = [
   "data-palantir-development-measurements",
   "data-palantir-preproduction-measurements",
+  "data-palantir-development-calibration",
+  "data-palantir-preproduction-calibration",
 ]
 
 team_ssh_key_names = [

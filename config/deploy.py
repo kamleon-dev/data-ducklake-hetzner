@@ -4,47 +4,65 @@ from tasks.postgres import setup_postgres
 from tasks.duckdb import setup_duckdb
 from tasks.secure import setup_firewall, persist_firewall_config
 
-# 'development' keeps its original role/database names (ducklake /
-# ducklake_catalog) to avoid orphaning data already written under them.
-# Every other environment gets a name derived from its environment name.
-LEGACY_NAMES = {
-    "development": {"role": "ducklake", "database": "ducklake_catalog"},
-}
 
+def catalog_config(environment: str, dataset: str) -> dict:
+    """Build the role/database/password for one (environment, dataset)
+    catalog, e.g. (development, measurements) or (preproduction, calibration).
 
-def environment_config(env_name: str) -> dict:
-    names = LEGACY_NAMES.get(
-        env_name,
-        {"role": f"ducklake_{env_name}", "database": f"ducklake_catalog_{env_name}"},
+    The Postgres ROLE is shared across every dataset within an environment
+    (by design -- see project decision on calibration vs measurements
+    isolation): 'development' uses its legacy role/database names, other
+    environments use 'ducklake_<environment>'. Only the DATABASE name
+    varies by dataset, with 'measurements' kept as the bare/legacy name
+    (no suffix) so existing deployments are unaffected, and every other
+    dataset getting a '_<dataset>' suffix.
+    """
+    if environment == "development":
+        role = "ducklake"
+        base_database = "ducklake_catalog"
+    else:
+        role = f"ducklake_{environment}"
+        base_database = f"ducklake_catalog_{environment}"
+
+    database = (
+        base_database if dataset == "measurements" else f"{base_database}_{dataset}"
     )
-    password_var = f"POSTGRES_DB_PASSWORD_{env_name.upper()}"
+
+    # Password is per-environment only (shared across datasets in that
+    # environment), matching the shared-role decision above.
+    password_var = f"POSTGRES_DB_PASSWORD_{environment.upper()}"
     password = getenv(password_var)
     if not password:
         raise ValueError(
             f"Missing required env var: {password_var} "
-            f"(needed because TARGET_ENVIRONMENTS includes '{env_name}')"
+            f"(needed for environment '{environment}', dataset '{dataset}')"
         )
-    return {**names, "password": password}
+
+    return {"role": role, "database": database, "password": password}
 
 
 def deploy():
-    # Which environment(s) this specific server hosts, e.g.:
-    #   "development,preproduction"  -> the shared dev/preproduction server
-    #   "production"                 -> the dedicated production server
-    target_environments = [
-        e.strip()
-        for e in getenv("TARGET_ENVIRONMENTS", "").split(",")
-        if e.strip()
-    ]
-    if not target_environments:
+    # Which (environment, dataset) catalogs this server hosts, e.g.:
+    #   "development:measurements,development:calibration,preproduction:measurements,preproduction:calibration"
+    #   "production:measurements,production:calibration"
+    target_catalogs_raw = getenv("TARGET_CATALOGS", "")
+    pairs = [p.strip() for p in target_catalogs_raw.split(",") if p.strip()]
+    if not pairs:
         raise ValueError(
-            "TARGET_ENVIRONMENTS env var must be set, e.g. "
-            "'development,preproduction' or 'production'"
+            "TARGET_CATALOGS env var must be set, e.g. "
+            "'development:measurements,development:calibration'"
         )
 
-    environments = [environment_config(e) for e in target_environments]
+    catalogs = []
+    for pair in pairs:
+        if ":" not in pair:
+            raise ValueError(
+                f"Invalid TARGET_CATALOGS entry '{pair}', expected 'environment:dataset'"
+            )
+        environment, dataset = (part.strip() for part in pair.split(":", 1))
+        catalogs.append(catalog_config(environment, dataset))
 
-    setup_postgres(environments)
+    setup_postgres(catalogs)
     setup_duckdb()
     # Note: Postgres is not exposed on the firewall. It listens on
     # localhost only (see tasks/postgres.py), so DuckDB runs on this
